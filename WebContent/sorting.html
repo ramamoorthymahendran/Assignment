@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Random Sorting</title>
+</head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+</head>
+<body>
+
+<div class="container" ng-app="myApp">
+<div class="jumbotron">
+<h2 class="well well-lg text-center">Random Sorting System</h2>
+        <div ng-controller="myCtrl" class="form-group">
+      <label for="sorting_values">Enter The Numbers:</label>
+      <input type="text" name="sorting_values" class="form-control" ng-model="sorting_values"><br/>
+      <Button type="button" class="btn btn-primary btn-block" ng-click="sorting()">Sorting</Button>
+       <Button type="button" class="btn btn-success btn-block" ng-click="getHistory()">History</Button>
+   
+    
+<div ng-show="success">
+<div class="alert alert-success" >
+  <strong>Success!</strong> Sorting Has been done.
+</div>
+     <p class="bg-success">Sorting Order : {{sortingObj.sortingList}}</p>
+     <p class="bg-success">Position Changes Count : {{sortingObj.positionChangeCount}}</p>
+      <p class="bg-success">Sorting Timing : {{sortingObj.timing}} m/s</p>
+      </div>
+    <!-- <ul><li ng-repeat="x in [4, 4] track by History">{{x}}</li></ul> -->
+    <p ng-repeat="x in History" ng-show="displayHistroy">{{x}}</p>
+    </div>
+</div>
+</div>
+
+<script>
+      
+            
+            var myApp = angular.module("myApp", []);
+            
+            myApp.controller("myCtrl", [ '$scope', '$http', function($scope, $http) {
+             
+                 $scope.success = false;
+                 $scope.displayHistroy = false;
+                $scope.sorting = function() {
+                	$scope.displayHistroy = false;
+                    $http({
+                        url : 'Servlet/SortingServlet',
+                        method : "POST",
+                        headers: {
+                            'Content-Type': 'application/json', /*or whatever type is relevant */
+                            'Accept': 'application/json' /* ditto */
+                        },
+                        data : {
+                            'sorting_values' : $scope.sorting_values
+                        }
+                    }).then(function(response) {
+                    	$scope.success = true;
+                        console.log(response.data);
+                        $scope.sortingObj = response.data;
+                    }, function(response) {
+                        //fail case
+                        console.log(response);
+                        $scope.message = response;
+                    });
+             
+                };
+                
+                $scope.getHistory = function() {
+                	$scope.success = false;
+                	$scope.displayHistroy = true;
+                    $http({
+                        url : 'Servlet/SortingHistroy',
+                        method : "POST",
+                        headers: {
+                            'Content-Type': 'application/json', /*or whatever type is relevant */
+                            'Accept': 'application/json' /* ditto */
+                        }
+                    }).then(function(response) {
+                        console.log(response.data);
+                        $scope.History = response.data;
+                    }, function(response) {
+                        //fail case
+                        console.log(response);
+                        $scope.message = response;
+                    });
+             
+                };
+            } ]);
+        </script>
+</body>
+</html>
